@@ -1,8 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
-contextBridge.exposeInMainWorld('versions', {
-    node: () => process.versions.node,
-    chrome: () => process.versions.chrome,
-    electron: () => process.versions.electron,
-    ping: () => ipcRenderer.invoke('ping')
+import axios from './preload/axios'
+
+contextBridge.exposeInMainWorld('http', {
+    get: (params) => axios.get(params),
+    post: (params) => axios.post(params)
 })

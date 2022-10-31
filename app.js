@@ -5,12 +5,13 @@ const createWindow = () => {
     const win = new BrowserWindow({
         width: 800,
         height: 600,
-        /*webPreferences: {
+        webPreferences: {
             preload: path.join(__dirname, './modules/preload.js'),
-        },*/
+        },
     });
 
     //ipcMain.handle('ping', () => 'pong')
+    //win.loadURL('https://biskitanalytics.smiledev.net/myDashboard/home/serviceReview?projectId=A0018&countryCd=CHN')
     win.loadFile('./html/main.html')
 };
 
