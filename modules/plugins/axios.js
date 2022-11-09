@@ -1,11 +1,9 @@
-import axios from 'axios'
+const axios = require('axios')
 
-const config = {
+module.exports = axios.create({
     headers: {
         'Locale': 'en-US',
         'Content-Type': 'application/json'
     },
     timeout: 5000,
-}
-
-export default axios(config)
+})
