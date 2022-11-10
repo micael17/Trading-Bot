@@ -1,17 +1,26 @@
-window.onload = async () => {
 
-    const passphrase = localStorage.getItem('passphrase')
+const board = document.getElementById('board')
+let boardText = board.value
+window.ipc.receive('msg:update', (payload) => {
+    boardText = boardText + ' ' + payload
+    board.innerText = boardText
+})
+
+    // const board = document.getElementById('board')
+    // board.innerText = board.value + ' ' + `${api.Printer.do()}`
+
+    /*const passphrase = localStorage.getItem('passphrase')
 
     if (true) {
         await window.algorithm.Doji.do()
-    }
+    }*/
 
-    const res = await window.api.bitget.getCandleData({
+    /*const res = await window.api.bitget.getCandleData({
         endTime: String(moment().unix() * 1000),
         startTime: String(moment().subtract(23, 'hours').unix() * 1000)
-    })
+    })*/
 
-    if (res.status === 200) {
+    /*if (res.status === 200) {
         const high = [], low = [], open = [], close = []
         const vol = []
         const time = []
@@ -67,5 +76,4 @@ window.onload = async () => {
                 }
             }
         });
-    }
-}
+    }*/

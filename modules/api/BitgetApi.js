@@ -1,14 +1,24 @@
-const axios = require('../plugins/axios')
+const $axios = require('../plugins/axios')
 
 class BitgetApi {
-    constructor(symbol = 'BTCUSDT_UMCBL',
-                granularity = '1H', // = period
+    constructor({
+                apiKey = '',
+                passphrase = '',
+                secretKey = '',
+                mainUrl = '',
+                symbol = 'BTCUSDT_UMCBL',
+                granularity = '15m', // = period
                 startTime = '',
                 endTime= '',
-                period = '1h',
+                period = '15m',
                 after= '',
                 before = '',
-                limit = '100') {
+                limit = '100'
+    }) {
+        this.apiKey = apiKey,
+        this.passphrase = passphrase,
+        this.secretKey = secretKey,
+        this.mainUrl = mainUrl
         this.symbol = symbol
         this.granularity = granularity
         this.startTime = startTime
@@ -27,7 +37,7 @@ class BitgetApi {
             startTime = this.startTime,
             endTime = this.endTime
         }) => {
-        return await axios.get(this.url, {
+        return await $axios.get(this.url, {
             params: {
                 symbol, // Required
                 granularity, // Required
@@ -45,7 +55,7 @@ class BitgetApi {
            before= this.before,
            limit = this.limit
         }) => {
-        return await axios.get(this.url, {
+        return await $axios.get(this.url, {
             params: {
                 symbol, // Required
                 period, // Required
@@ -54,6 +64,25 @@ class BitgetApi {
                 limit
             }
         })
+    }
+
+    getOpenOrder = async (
+        {
+            symbol = this.symbol
+        }) => {
+
+        const requestPath = '/api/mix/v1/order/current'
+
+        const res = await $axios.get(requestPath, {
+            params: {
+                symbol
+            }
+        })
+
+        console.log(res)
+        return res
+
+
     }
 
 

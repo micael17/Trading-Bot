@@ -3,6 +3,6 @@ window.onload = () => {
 
     btnSubmit.addEventListener('click', (evt) => {
         const passphrase = document.getElementById('passphrase').value
-        localStorage.setItem('passphrase', passphrase)
+        window.api.sendPassphrase(passphrase)
     })
 }
