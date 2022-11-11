@@ -60,10 +60,12 @@ const startMain = async (passphrase) => {
     const second = 1000
     const minute = second * 60
 
-    const res = await trader.getOpenOrder()
+    const res = await trader.getTraderOpenOrder()
 
-    console.log(res)
-    win.webContents.send('msg:update', res.data)
+    console.log(res.data)
+    win.webContents.send('msg:update', JSON.stringify(res.data))
+
+    // res.data && res.data.length > 0 then foreach i get Number(unrealizedPL > 0) closePosition
 
     /*await trader.main(win)
     setInterval(async () => {

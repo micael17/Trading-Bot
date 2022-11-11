@@ -25,6 +25,10 @@ class Trader {
         })
     }
 
+    getAccountList = async () => { // 현재 계정의 자산 상태 확인 // 쓸일 있을 듯
+        return await this.api.getAccountList()
+    }
+
     getData = async () => {
         const res = await this.api.getCandleData({
             symbol: 'BTCUSDT_UMCBL',
@@ -37,9 +41,35 @@ class Trader {
     }
 
     getOpenOrder = async () => {
-        console.log('trader')
         return await this.api.getOpenOrder({
             symbol: 'BTCUSDT_UMCBL'
+        })
+    }
+
+    getAllOpenOrder = async () => {
+        return await this.api.getAllOpenOrder()
+    }
+
+    getTraderOpenOrder = async() => {
+        return await this.api.getTraderOpenOrder()
+    }
+
+    getAllPosition = async () => { // 모든 코인이 나오고 내 포지션 확인.  쓸일 있을 듯
+        return await this.api.getAllPosition()
+    }
+
+    getSinglePosition = async () => { // 이걸 보통 쓸듯, 어차피 BTC만 할꺼니까
+        return await this.api.getSinglePosition()
+    }
+
+    getOrderDetails = async() => {
+        return await this.api.getOrderDetails()
+    }
+
+    getHistoryOrders = async() => {
+        return await this.api.getHistoryOrders({
+            startTime: this.startTime,
+            endTime: this.endTime
         })
     }
 

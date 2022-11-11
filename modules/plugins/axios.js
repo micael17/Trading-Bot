@@ -3,82 +3,37 @@ const https = require('https')
 const moment = require('moment')
 const crypto = require('crypto')
 
-
-/**
- * The request header of ACCESS-SIGN is to encrypt
- * timestamp + method.toUpperCase() + requestPath + "?" + queryString + body string (+ means string concat)
- * by HMAC SHA256 algorithm with secretKey. and encode the encrypted result through BASE64.
- *
- * For example
-
- Get contract depth information, let's take BTCUSDT_UMCBL as an example:
-
- timestamp = 16273667805456
- method = "GET"
- requestPath = "/api/mix/V1/market/depth"
- queryString= "?symbol=BTCUSDT_UMCBL&limit=20"
- Generate the content to be signed:
-
- 16273667805456GET/api/mix/v1/market/depth?symbol=BTCUSDT_UMCBL&limit=20
-
- Contract order, take BTCUSDT_UMCBL as an example:
-
- timestamp = 16273667805456
- method = "POST"
- requestPath = "/api/mix/v1/order/placeOrder"
- body = {"symbol":"BTCUSDT_UMCBL","size":"8","side":"open_long","orderType":"limit","client_oid":"bitget#123456"}
-
- 16273667805456POST/api/mix/v1/order/placeOrder{"symbol":"BTCUSDT_UMCBL","size":"8","side":"open_long","order_type":"limit","client_oid":"bitget#123456"}
-
- Steps to generate the final signature
-
- Step 1. Use the private key secretkey to encrypt the content with hmac sha256
-
- String payload = hmac_sha256(secretkey, content);
-
- The second step is to base64 encode the payload
-
- String signature = base64.encode(payload);
- */
-
 const $axios = ( function () {
 
     const secretKey = '02bb10a98085573bf679ae939a78216f61824f90d47af176e76c49dd88bc64b6'
     const bitgetUrl = 'https://api.bitget.com'
 
-    const timestamp = moment().unix() * 1000
+
 
     const generateConfig = (method, requestPath, config) => {
 
-        const GenerateHMAC = (value) => {
-            return crypto.createHmac('sha256', secretKey)
-                .update(value)
-                .digest('hex')
-                .replace('==','').replace('=','')
-        }
+        const timestamp = moment().unix() * 1000
 
         const genSign = () => {
             let value
-            let queryString, body
+            let queryString, bodyString = ''
             if (method === 'GET' && config.params) {
                 queryString = Object.entries(config.params).map(e => e.join('=')).join('&')
             } else if (method === 'POST' && config.params) {
-                body = JSON.stringify({ x: 5, y: 6 })
+                bodyString = JSON.stringify({ x: 5, y: 6 })
             }
 
             if (queryString) {
-                value = timestamp + method.toUpperCase() + requestPath + '?' + queryString
-            } else if(body) {
-                let bodyString = JSON.stringify(body)
+                value = timestamp + method.toUpperCase() + requestPath + '?' + queryString + bodyString
+            } else {
                 const length = bodyString.length
                 bodyString = bodyString.substring(1, length - 1)
                 value = timestamp + method.toUpperCase() + requestPath + bodyString
-            } else {
-                value = timestamp + method.toUpperCase() + requestPath
             }
 
-            const payload = GenerateHMAC(value)
-            return Buffer.from(payload).toString('base64')
+            return crypto.createHmac('sha256', secretKey)
+                .update(value)
+                .digest('base64')
         }
 
         return {
@@ -97,22 +52,44 @@ const $axios = ( function () {
         }
     }
 
+
+   function errorHandler(error) {
+        {
+            if (error.response) {
+                console.log(error.response.data)
+            } else if (error.request) {
+                console.log(error.request)
+            } else {
+                console.log('Error', error.message)
+            }
+        }
+    }
+
     return {
         async get(url, config) {
-            const conf = generateConfig('GET', url, config)
+            const genConfig = generateConfig('GET', url, config)
 
             let queryString
             if (config.params) {
                 queryString = Object.entries(config.params).map(e => e.join('=')).join('&')
             }
-            console.log(conf)
-            return await axios.get(bitgetUrl + url + '?' + queryString, conf)
+
+            console.log(queryString)
+            return await axios.get(bitgetUrl + url + '?' + queryString, genConfig)
+                .catch(function(error) { errorHandler(error) })
         },
 
         async post(url, data, config) {
-            const conf = generateConfig('POST', url, config)
-            return await axios.post(bitgetUrl + url, data, config)
-        }
+            const genConfig = generateConfig('POST', url, config)
+
+            let queryString
+            if (config.params) {
+                queryString = Object.entries(config.params).map(e => e.join('=')).join('&')
+            }
+
+            return await axios.post(bitgetUrl + url + '?' + queryString, data, genConfig)
+                .catch(function(error) { errorHandler(error) })
+        },
     }
 })()
 
