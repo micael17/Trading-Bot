@@ -1,4 +1,5 @@
 const $axios = require('../plugins/axios')
+const moment = require("moment");
 
 class BitgetApi {
     constructor({
@@ -21,8 +22,8 @@ class BitgetApi {
         this.mainUrl = mainUrl
         this.symbol = symbol
         this.granularity = granularity
-        this.startTime = startTime
-        this.endTime = endTime
+        this.endTime = String(moment().unix() * 1000)
+        this.startTime = String(moment().subtract(23, 'hours').unix() * 1000)
         this.period = period
         this.after = after
         this.before = before
@@ -39,6 +40,46 @@ class BitgetApi {
             }
         })
     }*/
+
+    placeOrder = async ({
+            symbol = this.symbol,
+            marginCoin = 'USDT',
+            size = '0.001',
+            price = '11111.0',
+            side = 'open_long',
+            orderType = 'limit',
+        }) => {
+        const requestPath = '/api/mix/v1/order/placeOrder'
+
+        return await $axios.post(requestPath, {
+            symbol,
+            marginCoin,
+            size,
+            price,
+            side,
+            orderType
+        })
+    }
+
+    closePosition = async ({ // =placeOrder api
+           symbol = this.symbol,
+           marginCoin = 'USDT',
+           size = '0',
+           price = '0',
+           side = 'close_long',
+           orderType = 'limit',
+    }) => {
+        const requestPath = '/api/mix/v1/order/placeOrder'
+
+        return await $axios.post(requestPath, {
+            symbol,
+            marginCoin,
+            size,
+            price,
+            side,
+            orderType
+        })
+    }
 
     getAccountList = async(
             productType = 'umcbl',
@@ -62,7 +103,7 @@ class BitgetApi {
         return await $axios.get(requestPath, {
             params: {
                 symbol, // Required
-                granularity, // Required
+                granularity, // = period Required
                 startTime,
                 endTime
             }
@@ -123,7 +164,7 @@ class BitgetApi {
     getTraderOpenOrder = async (
         symbol = 'BTCUSDT_UMCBL',
         productType = 'umcbl',
-        pageSize = 1,
+        pageSize = 20,
         pageNo = 1
     ) => {
         const requestPath = '/api/mix/v1/trace/currentTrack'

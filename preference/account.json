@@ -2,5 +2,9 @@
   "mainUrl" : "https://api.bitget.com",
   "apiKey" : "bg_12529834cea0cd91fe37feb80a78f6f2",
   "secretKey" : "02bb10a98085573bf679ae939a78216f61824f90d47af176e76c49dd88bc64b6",
-  "passphrase" : "jihongkim"
+  "passphrase" : "jihongkim",
+  "binance" : {
+    "apiKey" : "6rtLqrAhBhalqZQqWEyqYqWRahuLnuw2SrLVaQRH1uTQQf3TXxteg8MAVuv9KPim",
+    "secretKey" : "bAREWNcCjmTBtWqNzKv5qWOYWMHZJ4uYZiZ5sJo5zB8MrD2DXqNYYRBWthIXLdbK"
+  }
 }

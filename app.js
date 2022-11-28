@@ -1,5 +1,5 @@
 const { app, BrowserWindow, ipcMain, webContents  } = require('electron')
-const main = require('./controller/main')
+const Main = require('./controller/main')
 const Doji = require('./modules/algorithm/Doji')
 const path = require('path')
 const fs = require('fs');
@@ -33,11 +33,14 @@ app.whenReady().then(() => {
 
     ipcMain.on('onInputPassphrase', (evt, passphrase) => {
         console.log('on onInputPassphrase event:: ', passphrase)
-
-        if (passphrase) {
-            startMain(passphrase)
-        }
+        const MainProcess = new Main({
+            msgFn: (channel = 'msg:update', msg) => {
+                win.webContents.send(channel, msg)
+            }
+        })
+        MainProcess.run()
     })
+
 });
 
 app.on('window-all-closed', () => {
@@ -45,34 +48,3 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
-
-const startMain = async (passphrase) => {
-    const account = JSON.parse(fs.readFileSync('./preference/account.json'))
-    const doji = new Doji()
-    const trader = new Trader({
-        algorithmObj: doji,
-        mainUrl: account.mainUrl,
-        apiKey: account.apiKey,
-        secretKey: account.secretKey,
-        passphrase
-    })
-
-    const second = 1000
-    const minute = second * 60
-
-    const res = await trader.getTraderOpenOrder()
-
-    console.log(res.data)
-    win.webContents.send('msg:update', JSON.stringify(res.data))
-
-    // res.data && res.data.length > 0 then foreach i get Number(unrealizedPL > 0) closePosition
-
-    /*await trader.main(win)
-    setInterval(async () => {
-        await trader.main(win)
-    }, minute)*/
-
-
-
-
-}

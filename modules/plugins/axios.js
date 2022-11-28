@@ -8,26 +8,20 @@ const $axios = ( function () {
     const secretKey = '02bb10a98085573bf679ae939a78216f61824f90d47af176e76c49dd88bc64b6'
     const bitgetUrl = 'https://api.bitget.com'
 
-
-
-    const generateConfig = (method, requestPath, config) => {
-
+    const generateConfig = ({method, requestPath, data, config}) => {
         const timestamp = moment().unix() * 1000
-
         const genSign = () => {
             let value
             let queryString, bodyString = ''
             if (method === 'GET' && config.params) {
                 queryString = Object.entries(config.params).map(e => e.join('=')).join('&')
-            } else if (method === 'POST' && config.params) {
-                bodyString = JSON.stringify({ x: 5, y: 6 })
+            } else if (method === 'POST' && data) {
+                bodyString = JSON.stringify(data)
             }
 
             if (queryString) {
                 value = timestamp + method.toUpperCase() + requestPath + '?' + queryString + bodyString
             } else {
-                const length = bodyString.length
-                bodyString = bodyString.substring(1, length - 1)
                 value = timestamp + method.toUpperCase() + requestPath + bodyString
             }
 
@@ -67,27 +61,37 @@ const $axios = ( function () {
 
     return {
         async get(url, config) {
-            const genConfig = generateConfig('GET', url, config)
+            const genConfig = generateConfig({
+                method: 'GET',
+                requestPath: url,
+                config
+            })
 
             let queryString
             if (config.params) {
                 queryString = Object.entries(config.params).map(e => e.join('=')).join('&')
             }
 
-            console.log(queryString)
             return await axios.get(bitgetUrl + url + '?' + queryString, genConfig)
                 .catch(function(error) { errorHandler(error) })
         },
 
         async post(url, data, config) {
-            const genConfig = generateConfig('POST', url, config)
+            const genConfig = generateConfig({
+                method: 'POST',
+                requestPath: url,
+                data,
+                config
+            })
 
             let queryString
-            if (config.params) {
+            if (config && config.params) {
                 queryString = Object.entries(config.params).map(e => e.join('=')).join('&')
             }
 
-            return await axios.post(bitgetUrl + url + '?' + queryString, data, genConfig)
+            queryString = queryString? '?' + queryString : ''
+
+            return await axios.post(bitgetUrl + url + queryString, data, genConfig)
                 .catch(function(error) { errorHandler(error) })
         },
     }

@@ -2,6 +2,7 @@
 const board = document.getElementById('board')
 let boardText = board.value
 window.ipc.receive('msg:update', (payload) => {
+    console.log('ipc', payload)
     boardText = boardText + ' ' + payload
     board.innerText = boardText
 })

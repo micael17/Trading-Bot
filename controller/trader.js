@@ -46,6 +46,23 @@ class Trader {
         })
     }
 
+    placeOrder = async ({
+                            symbol,
+                            marginCoin,
+                            size,
+                            price ,
+                            side,
+                            orderType}) => {
+        return await this.api.placeOrder({
+            symbol,
+            marginCoin,
+            size,
+            price,
+            side,
+            orderType
+        })
+    }
+
     getAllOpenOrder = async () => {
         return await this.api.getAllOpenOrder()
     }
@@ -71,6 +88,14 @@ class Trader {
             startTime: this.startTime,
             endTime: this.endTime
         })
+    }
+
+    async tmp(msg = (channel, payload) => {}) {
+        const res = await this.getSinglePosition()
+
+        if (res.status === 200) {
+            msg('msg:update', res.data)
+        }
     }
 
     async main(win) {
