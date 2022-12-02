@@ -36,7 +36,8 @@ app.whenReady().then(() => {
         const MainProcess = new Main({
             msgFn: (channel = 'msg:update', msg) => {
                 win.webContents.send(channel, msg)
-            }
+            },
+            passphrase: '',
         })
         MainProcess.run()
     })

@@ -7,39 +7,83 @@ const moment = require('moment')
 
 class Main {
     constructor({
-        msgFn = (channel, msg) => {}
+        msgFn = (channel, msg) => {},
+        passphrase = ''
         }) {
+
+        this.account = JSON.parse(fs.readFileSync('./preference/account.json'))
+        this.api = new BitgetApi({
+            mainUrl: this.account.mainUrl,
+            apiKey: this.account.apiKey,
+            secretKey: this.account.secretKey,
+            passphrase: passphrase && passphrase.length > 0 ? passphrase : this.account.passphrase
+        })
+        this.algo = new Algorithm()
         this.msgFn = msgFn
     }
 
-    interval = async (passphrase) => {
-        const account = JSON.parse(fs.readFileSync('./preference/account.json'))
-        const doji = new Doji()
-        const trader = new Trader({
-            algorithmObj: doji,
-            mainUrl: account.mainUrl,
-            apiKey: account.apiKey,
-            secretKey: account.secretKey,
-            passphrase
-        })
-        const algo = new Algorithm()
-        const api = new BitgetApi({})
+    openInterval = async () => {
         const second = 1000
-
         const interval = setInterval(async () => {
             try {
-                const res = await api.getCandleData({})
+                const res = await this.api.getCandleData({})
                 if (res.status === 200) {
                     const data = res.data
-                    const order = algo.meanReversion1(data)
+                    const order = this.algo.meanReversion1(data)
 
                     this.msgFn('msg:update', JSON.stringify(moment().format('YYYY-MM-DD hh:mm:ss')))
                     if (order && order.direction && order.price) {
-                        const res = await api.placeOrder({
+                        const res = await this.api.placeOrder({
                             size: '0.001',
                             price: String(order.price),
                             side: 'open_' + order.direction
                         })
+
+                        if (res.status === 200) {
+                            /*this.closeInterval({
+                                price: String(order.price),
+                                size: '0.001',
+                                side: 'close_' + order.direction
+                            })*/
+                        }
+
+                        this.msgFn('msg:update', 'CHECK!!!!NOW!!!!!!!')
+                        clearInterval(interval)
+                    }
+                }
+            } catch (e) {
+                console.log(e)
+            }
+        }, second * 10)
+    }
+
+    closeInterval = ({
+                         price,
+                         size = '0.001',
+                         side
+                     }) => {
+        const interval = setInterval(async () => {
+            try {
+                const res = await this.api.getCandleData({})
+                if (res.status === 200 && res.data.code === '00000') {
+                    const data = res.data
+                    const order = this.algo.meanReversion1(data)
+
+                    this.msgFn('msg:update', JSON.stringify(moment().format('YYYY-MM-DD hh:mm:ss')))
+                    if (order && order.direction && order.price) {
+                        const res = await this.api.placeOrder({
+                            size: '0.001',
+                            price: String(price),
+                            side: 'open_' + side
+                        })
+
+                        if (res.status === 200 && res.data.code === '00000') {
+                            this.closeInterval({
+                                price: String(order.price),
+                                size: '0.001',
+                                side: 'close_' + order.direction
+                            })
+                        }
 
                         this.msgFn('msg:update', 'CHECK!!!!NOW!!!!!!!')
                         clearInterval(interval)
@@ -50,41 +94,10 @@ class Main {
             }
         }, second * 10)
 
-
-        // const minute = second * 60
-
-        /*const res = await trader.getTraderOpenOrder()
-
-        win.webContents.send('msg:update', JSON.stringify(res.data))*/
-
-        // await trader.getTraderOpenOrder();
-
-        // res.data && res.data.length > 0 then foreach i get Number(unrealizedPL > 0) closePosition
-
-        /*const interval = setInterval(async () => {
-            await trader.tmp(async (channel, payload) => {
-                console.log(payload.data[0].unrealizedPL)
-                if (Number(payload.data[0].unrealizedPL) > 10) {
-                    const size = payload.data[0].total
-                    const price = payload.data[0].marketPrice
-
-                    const res = await trader.placeOrder({
-                        size,
-                        price,
-                        side: 'close_long'
-                    })
-
-                    console.log(res.data)
-                    win.WebContents.send('msg:update', JSON.stringify(res.data))
-
-                    clearInterval(interval)
-                }
-            })
-        }, second * 5)*/
     }
 
     run = () => {
-        this.interval().then(() => {
+        this.openInterval().then(() => {
 
         })
     }

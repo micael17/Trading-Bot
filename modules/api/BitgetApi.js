@@ -9,8 +9,6 @@ class BitgetApi {
                 mainUrl = '',
                 symbol = 'BTCUSDT_UMCBL',
                 granularity = '15m', // = period
-                startTime = '',
-                endTime= '',
                 period = '15m',
                 after= '',
                 before = '',
@@ -22,12 +20,18 @@ class BitgetApi {
         this.mainUrl = mainUrl
         this.symbol = symbol
         this.granularity = granularity
-        this.endTime = String(moment().unix() * 1000)
-        this.startTime = String(moment().subtract(23, 'hours').unix() * 1000)
         this.period = period
         this.after = after
         this.before = before
         this.limit = limit // Default 100
+    }
+
+    getStartTime() {
+        return String(moment().subtract(23, 'hours').unix() * 1000)
+    }
+
+    getEndTime() {
+        return String(moment().unix() * 1000)
     }
 
     /*openOrder = async ({
@@ -96,8 +100,8 @@ class BitgetApi {
         {
             symbol = this.symbol,
             granularity = this.granularity,
-            startTime = this.startTime,
-            endTime = this.endTime
+            startTime = this.getStartTime(),
+            endTime = this.getEndTime()
         }) => {
         const requestPath = '/api/mix/v1/market/candles'
         return await $axios.get(requestPath, {
@@ -228,8 +232,8 @@ class BitgetApi {
 
     getHistoryOrders = async ({
         symbol = 'BTCUSDT_UMCBL',
-        startTime = this.startTime,
-        endTime = this.endTime,
+        startTime = this.getStartTime(),
+        endTime = this.getEndTime(),
         pageSize = 20
     }) => {
         const requestPath = '/api/mix/v1/order/history'
