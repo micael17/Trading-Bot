@@ -182,6 +182,7 @@ class Algorithm {
             console.log('doji) -lastCandleDiversion: ', lastCandleDiversion)
             if (lastCandleDiversion < 5) {
                 // 2) 직전 캔들의 거래량이 평균 거래량의 3배 이상
+                console.log('vol[lastCandleIdx] > this.getAvg(vol) * 3 : ', vol[lastCandleIdx] > this.getAvg(vol) * 3)
                 if (vol[lastCandleIdx] > this.getAvg(vol) * 3) {
                     return true
                 }

@@ -3,6 +3,7 @@ const Doji = require('../modules/algorithm/Doji')
 const Trader = require('./trader')
 const Algorithm = require('../modules/algorithm/Algorithm')
 const BitgetApi = require('../modules/api/BitgetApi')
+const Indicator = require('../modules/algorithm/Indicator')
 const moment = require('moment')
 const TelegramAPI = require('../modules/api/Telegram')
 
@@ -51,6 +52,8 @@ class Main {
                 const res = await this.api.getCandleData({})
                 if (res.status === 200) {
                     const candleData = this.getCandleDataFromRawData(res.data)
+
+                    const stochasticResult = Indicator.fastStochastic(candleData)
                     const order = this.algo.meanReversion1(candleData) || this.algo.doji(candleData)
 
                     if (order && isNotited.indexOf(false) > -1) {
@@ -59,7 +62,7 @@ class Main {
                             isNotited[idx] = true
                         }
 
-                        TelegramAPI.sendMessage("CHECK NOW")
+                        TelegramAPI.sendMessage("CHECK NOW. FastStochastic: " + stochasticResult)
                         this.msgFn('msg:update', JSON.stringify(moment().format('YYYY-MM-DD hh:mm:ss')))
                     } else if(!order) {
                         isNotited = [false, false, false]
@@ -91,7 +94,7 @@ class Main {
             } catch (e) {
                 console.log(e)
             }
-        }, second * 10)
+        }, second * 2)
     }
 
     closeInterval = ({
