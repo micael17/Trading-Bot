@@ -31,7 +31,7 @@ class Trader {
 
     getData = async () => {
         const res = await this.api.getCandleData({
-            symbol: 'BTCUSDT_UMCBL',
+            symbol: this.symbol,
             granularity : '15m',
             endTime: this.endTime,
             startTime: this.startTime
@@ -42,7 +42,7 @@ class Trader {
 
     getOpenOrder = async () => {
         return await this.api.getOpenOrder({
-            symbol: 'BTCUSDT_UMCBL'
+            symbol: this.symbol
         })
     }
 

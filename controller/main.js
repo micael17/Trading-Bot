@@ -46,26 +46,27 @@ class Main {
 
     openInterval = async () => {
         const second = 1000
-        let isNotited = [false, false, false]
+        let isNoticed = [false, false, false]
         const interval = setInterval(async () => {
             try {
                 const res = await this.api.getCandleData({})
                 if (res.status === 200) {
                     const candleData = this.getCandleDataFromRawData(res.data)
 
+                    const rsi = Indicator.rsi(candleData)
                     const stochasticResult = Indicator.fastStochastic(candleData)
                     const order = this.algo.meanReversion1(candleData) || this.algo.doji(candleData)
 
-                    if (order && isNotited.indexOf(false) > -1) {
-                        const idx = isNotited.indexOf(false)
+                    if (order && isNoticed.indexOf(false) > -1) {
+                        const idx = isNoticed.indexOf(false)
                         if (idx > -1) {
-                            isNotited[idx] = true
+                            isNoticed[idx] = true
                         }
 
-                        TelegramAPI.sendMessage("CHECK NOW. FastStochastic: " + stochasticResult)
+                        TelegramAPI.sendMessage("CHECK NOW. FastStochastic: " + stochasticResult + ", rsi: " + rsi)
                         this.msgFn('msg:update', JSON.stringify(moment().format('YYYY-MM-DD hh:mm:ss')))
                     } else if(!order) {
-                        isNotited = [false, false, false]
+                        isNoticed = [false, false, false]
                     }
 
                     /*if (order && order.direction && order.price && order.targetPrice && order.stopLossPrice) {

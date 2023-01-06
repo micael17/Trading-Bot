@@ -7,7 +7,7 @@ class BitgetApi {
                 passphrase = '',
                 secretKey = '',
                 mainUrl = '',
-                symbol = 'BTCUSDT_UMCBL',
+                symbol = 'SETHSPERP_SCMCBL',
                 granularity = '15m', // = period
                 period = '15m',
                 after= '',
@@ -166,7 +166,7 @@ class BitgetApi {
     }
 
     getTraderOpenOrder = async (
-        symbol = 'BTCUSDT_UMCBL',
+        symbol = this.symbol,
         productType = 'umcbl',
         pageSize = 20,
         pageNo = 1
@@ -199,7 +199,7 @@ class BitgetApi {
     }
 
     getSinglePosition = async (
-        symbol = 'BTCUSDT_UMCBL',
+        symbol = this.symbol,
         marginCoin = 'USDT'
     ) => {
         const requestPath = '/api/mix/v1/position/singlePosition'
@@ -215,7 +215,7 @@ class BitgetApi {
     }
 
     getOrderDetails = async (
-        symbol = 'BTCUSDT_UMCBL',
+        symbol = this.symbol,
         orderId = '',
         clientOid = ''
     ) => {
@@ -231,7 +231,7 @@ class BitgetApi {
     }
 
     getHistoryOrders = async ({
-        symbol = 'BTCUSDT_UMCBL',
+        symbol = this.symbol,
         startTime = this.getStartTime(),
         endTime = this.getEndTime(),
         pageSize = 20

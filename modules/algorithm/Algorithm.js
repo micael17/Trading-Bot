@@ -43,9 +43,9 @@ class Algorithm {
      * : 마지막 캔들의 상승/하락이 크게 나오면서 거래량이 압도적일 때 역 추세로 매매하는 전략.
      *
      * 조건
-     * 1) 1, 2번(마지막) 캔들 방향이 같음
-     * 2) 마지막 캔들의 몸통 길이가 평균 캔들 몸통 길이의 2배 이상
-     * 3) 마지막 캔들의 거래량이 평균거래량의 3배 이상 (가장 중요)
+     * // 1) 1, 2번(마지막) 캔들 방향이 같음
+     * // 2) 현재 캔들의 몸통 길이가 평균 캔들 몸통 길이의 2배 이상
+     * 3) 현재 캔들의 거래량이 평균거래량의 3배 이상 (가장 중요)
      *
      * ps. 장세가 기본적으로 거래량이 충분하고 변동성이 좋을 때 사용한다.
      * 상승/하락장은 크게는 상관없지만 하락장에서 더 좋을 듯.
@@ -67,27 +67,28 @@ class Algorithm {
             const pre1 = close[lastCandleIdx - 2] - close[lastCandleIdx - 1] < 0 ? 'long' : 'short'
 
             //1) 1, 2번(마지막) 캔들 방향이 같음
-            if (pre1 === pre2) {
+            // if (pre1 === pre2) {
                 const diversion = []
                 for (let i = 0; i < open.length; i+= 1) {
                     diversion.push(Math.abs(open[i] - close[i]))
                 }
                 const avgCandleDiversion = this.getAvg(diversion) // 평균 캔들 몸통 길이 구하기
-                const lastCandleDiversion = Math.abs(open[lastCandleIdx] - close[lastCandleIdx]) // 마지막 캔들의 몸통 길이 구하기
+                const lastCandleDiversion = Math.abs(open[idx] - close[idx]) // 현재 캔들의 몸통 길이 구하기
 
-                console.log("2. ", lastCandleDiversion > avgCandleDiversion * 2, lastCandleDiversion, avgCandleDiversion)
-                // 2) 2번(마지막) 캔들의 몸통 길이가 평균 캔들 몸통 길이의 2배 이상
+                // console.log("meanReversion1) 2.candle length is double than avg: ", lastCandleDiversion > avgCandleDiversion * 2)
+                // 2) 현재 캔들의 몸통 길이가 평균 캔들 몸통 길이의 2배 이상
                 if (lastCandleDiversion > avgCandleDiversion * 2) {
-                    const lastVol = vol[lastCandleIdx]
+                    const lastVol = vol[idx]
                     const avgVol = this.getAvg(vol)
 
-                    console.log("3. ", lastVol > avgVol * 3, lastVol, avgVol)
-                    //3) 마지막 캔들의 거래량이 평균거래량의 3배 이상 (가장 중요)
+                    console.log('avgVol ', avgVol)
+                    console.log("meanReversion1) 3.vol is 3 times than avg: ", lastVol > avgVol * 3)
+                    //3) 현재 캔들의 거래량이 평균거래량의 3배 이상 (가장 중요)
                     if (lastVol > avgVol * 3) {
                         return true
                     }
                 }
-            }
+            // }
         } else {
             console.log('[ERROR] meanReversion1 length')
         }
@@ -179,10 +180,9 @@ class Algorithm {
             const lastCandleDiversion = Math.abs(open[lastCandleIdx] - close[lastCandleIdx])
 
             //1) 직전 캔들이 도지인가?
-            console.log('doji) -lastCandleDiversion: ', lastCandleDiversion)
-            if (lastCandleDiversion < 5) {
+            if (lastCandleDiversion < 1) {
                 // 2) 직전 캔들의 거래량이 평균 거래량의 3배 이상
-                console.log('vol[lastCandleIdx] > this.getAvg(vol) * 3 : ', vol[lastCandleIdx] > this.getAvg(vol) * 3)
+                console.log('doji) vol[lastCandleIdx] > this.getAvg(vol) * 3 : ', vol[lastCandleIdx] > this.getAvg(vol) * 3)
                 if (vol[lastCandleIdx] > this.getAvg(vol) * 3) {
                     return true
                 }
